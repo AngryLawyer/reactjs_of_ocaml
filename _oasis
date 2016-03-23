@@ -10,7 +10,7 @@ OCamlVersion: >= 4.02
 
 Library reactjs
   Path:         lib
-  BuildDepends: js_of_ocaml (>= 2.7), js_of_ocaml.ppx (>= 2.7)
+  BuildDepends: js_of_ocaml (>= 2.6), js_of_ocaml.ppx (>= 2.6)
   Modules:      ReactJS, ReactDOM
 
 SourceRepository master
