@@ -13,6 +13,11 @@ Library reactjs
   BuildDepends: js_of_ocaml (>= 2.6), js_of_ocaml.ppx (>= 2.6)
   Modules:      ReactJS, ReactDOM
 
+Executable reactjs.ppx
+    Path:           lib/ppx
+    MainIs:         ppx.ml
+    CompiledObject: best
+
 SourceRepository master
   Type:     git
   Location: https://github.com/angrylawyer/reactjs_of_ocaml.git
