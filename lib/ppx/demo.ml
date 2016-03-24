@@ -1,2 +1,2 @@
-[%jsx [dom]
+[%jsx [div]
 ]
