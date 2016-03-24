@@ -6,12 +6,16 @@ open Longident
 
 let dom_parser pexp_desc loc =
     match pexp_desc with
-    | Pexp_construct (_,
-            Some { pexp_desc = _ }
+    | Pexp_construct ({loc = loc},
+            Some { pexp_desc = Pexp_tuple([
+                { pexp_desc = Pexp_ident ({txt = Lident ident; loc = _})};
+                { pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
+            ])}
         ) ->
-            raise (Location.Error (
-                Location.error ~loc "FINE")
-            )
+            Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) [
+                ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (ident, None)))));
+                ("", Exp.construct {txt = Lident "[]"; loc=loc} None)
+            ]
     | _ -> raise (Location.Error (
         Location.error ~loc "[%jsx] expected a valid DOM node"))
 
