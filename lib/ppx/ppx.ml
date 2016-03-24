@@ -4,13 +4,24 @@ open Asttypes
 open Parsetree
 open Longident
 
+let dom_parser pexp_desc loc =
+    match pexp_desc with
+    | Pexp_construct (_,
+            Some { pexp_desc = _ }
+        ) ->
+            raise (Location.Error (
+                Location.error ~loc "FINE")
+            )
+    | _ -> raise (Location.Error (
+        Location.error ~loc "[%jsx] expected a valid DOM node"))
+
+
 let single_item_parser pstr loc =
     match pstr with
     | PStr [{ pstr_desc = Pstr_eval({
-            pexp_loc = loc; pexp_desc = Pexp_construct (_, _)
+            pexp_loc = loc; pexp_desc
         }, _)}] ->
-        raise (Location.Error (
-            Location.error ~loc "FINE"))
+            dom_parser pexp_desc loc
     | _ ->
         raise (Location.Error (
             Location.error ~loc "[%jsx] accepts a single DOM node"))
