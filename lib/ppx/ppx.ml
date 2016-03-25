@@ -4,19 +4,23 @@ open Asttypes
 open Parsetree
 open Longident
 
+type tag_type =
+    | Tag_name
+    | React_class
+
 let rec parse_attr pexp_desc loc collector =
     match pexp_desc with
-    | Pexp_construct ({txt = Lident "::"; loc = loc}, (Some (
+    | {pexp_desc = Pexp_construct ({txt = Lident "::"; loc = loc}, (Some (
         { pexp_desc = Pexp_tuple ([
             { pexp_desc = Pexp_apply (
                 {pexp_desc = Pexp_ident ({ txt = Lident attr_name; loc = _})},
                 [(_, argument)]
             )};
-            { pexp_desc = next }
+            next
         ])}
-    ))) ->
+    )))} ->
         parse_attr next loc ((attr_name, argument) :: collector)
-    | Pexp_construct ({txt = Lident "[]"; loc = _}, None) ->
+    | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)} ->
         (* Done parsing! *)
         collector
     | _ -> raise (Location.Error (
@@ -30,22 +34,25 @@ let parse_attrs pexp_desc loc =
     else
         Some ("props") (* TODO: build props object *)
 
+let make_component kind ident props loc =
+    let class_constr = match kind with
+        | Tag_name -> ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))))
+        | React_class -> ("", Exp.construct {txt = Lident "React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})))
+    in
+    let args = [class_constr; ("", Exp.construct {txt = Lident "[]"; loc=loc} None)] in
+    Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) args
+
+
 let dom_parser_inner pexp_desc loc = 
     match pexp_desc with
     | Pexp_tuple([
         { pexp_desc = Pexp_ident ({txt = Lident ident; loc = _})};
-        { pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
-      ]) -> Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) [
-            ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))));
-            ("", Exp.construct {txt = Lident "[]"; loc=loc} None)
-      ]
+        args
+      ]) -> make_component Tag_name ident (parse_attrs args loc) loc
     | Pexp_tuple([
         { pexp_desc = Pexp_construct ({txt = Lident ident; loc = _}, None)};
-        { pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
-      ]) -> Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) [
-            ("", Exp.construct {txt = Lident "React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})));
-            ("", Exp.construct {txt = Lident "[]"; loc=loc} None)
-        ]
+        args
+      ]) -> make_component React_class ident (parse_attrs args loc) loc
     | _ -> raise (Location.Error (
         Location.error ~loc "[%jsx] expected a valid DOM node"))
 
