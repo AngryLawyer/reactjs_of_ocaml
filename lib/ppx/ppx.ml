@@ -4,8 +4,31 @@ open Asttypes
 open Parsetree
 open Longident
 
-let get_tag_constructor ident constructor loc =
-    Exp.construct {txt = Lident constructor; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None))))
+let rec parse_attr pexp_desc loc collector =
+    match pexp_desc with
+    | Pexp_construct ({txt = Lident "::"; loc = loc}, (Some (
+        { pexp_desc = Pexp_tuple ([
+            { pexp_desc = Pexp_apply (
+                {pexp_desc = Pexp_ident ({ txt = Lident attr_name; loc = _})},
+                [(_, argument)]
+            )};
+            { pexp_desc = next }
+        ])}
+    ))) ->
+        parse_attr next loc ((attr_name, argument) :: collector)
+    | Pexp_construct ({txt = Lident "[]"; loc = _}, None) ->
+        (* Done parsing! *)
+        collector
+    | _ -> raise (Location.Error (
+        Location.error ~loc "[%jsx] expected a valid attribute"))
+
+let parse_attrs pexp_desc loc =
+    (* build up a list of attr-value pairs for making a class *)
+    let attr_list = parse_attr pexp_desc loc [] in
+    if List.length attr_list == 0 then
+        None
+    else
+        Some ("props") (* TODO: build props object *)
 
 let dom_parser_inner pexp_desc loc = 
     match pexp_desc with
