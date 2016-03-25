@@ -32,14 +32,16 @@ let parse_attrs pexp_desc loc =
     if List.length attr_list == 0 then
         None
     else
-        Some ("props") (* TODO: build props object *)
+        Some ("props", Exp.extension ("js", (* PAYLOAD *))) (* TODO: build props object *)
 
 let make_component kind ident props loc =
     let class_constr = match kind with
         | Tag_name -> ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))))
         | React_class -> ("", Exp.construct {txt = Lident "React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})))
     in
-    let args = [class_constr; ("", Exp.construct {txt = Lident "[]"; loc=loc} None)] in
+    let args = match props with
+    | Some prop_object -> [class_constr; prop_object; ("", Exp.construct {txt = Lident "[]"; loc=loc} None)]
+    | None -> [class_constr; ("", Exp.construct {txt = Lident "[]"; loc=loc} None)] in
     Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) args
 
 
