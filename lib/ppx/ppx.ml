@@ -7,29 +7,31 @@ open Longident
 let get_tag_constructor ident constructor loc =
     Exp.construct {txt = Lident constructor; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None))))
 
+let dom_parser_inner pexp_desc loc = 
+    match pexp_desc with
+    | Pexp_tuple([
+        { pexp_desc = Pexp_ident ({txt = Lident ident; loc = _})};
+        { pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
+      ]) -> Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) [
+            ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))));
+            ("", Exp.construct {txt = Lident "[]"; loc=loc} None)
+      ]
+    | Pexp_tuple([
+        { pexp_desc = Pexp_construct ({txt = Lident ident; loc = _}, None)};
+        { pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
+      ]) -> Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) [
+            ("", Exp.construct {txt = Lident "React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})));
+            ("", Exp.construct {txt = Lident "[]"; loc=loc} None)
+        ]
+    | _ -> raise (Location.Error (
+        Location.error ~loc "[%jsx] expected a valid DOM node"))
 
 let dom_parser pexp_desc loc =
     match pexp_desc with
     | Pexp_construct ({loc = loc},
-            Some { pexp_desc = Pexp_tuple([
-                { pexp_desc = Pexp_ident ({txt = Lident ident; loc = _})};
-                { pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
-            ])}
+            Some { pexp_desc = desc}
         ) ->
-            Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) [
-                ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))));
-                ("", Exp.construct {txt = Lident "[]"; loc=loc} None)
-            ]
-    | Pexp_construct ({loc = loc},
-            Some { pexp_desc = Pexp_tuple([
-                { pexp_desc = Pexp_construct ({txt = Lident ident; loc = _}, None)};
-                { pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
-            ])}
-        ) ->
-            Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) [
-                ("", Exp.construct {txt = Lident "React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})));
-                ("", Exp.construct {txt = Lident "[]"; loc=loc} None)
-            ]
+            dom_parser_inner desc loc
     | _ -> raise (Location.Error (
         Location.error ~loc "[%jsx] expected a valid DOM node"))
 
