@@ -53,27 +53,79 @@ let parse_attrs pexp_desc loc =
             ]
         ))
 
-let make_component kind ident props loc =
+let rec find_children pexp loc =
+    match pexp with
+    | {pexp_desc = Pexp_construct ({txt = Lident "::"; loc = loc}, (Some (
+        { pexp_desc = Pexp_tuple ([
+            { pexp_desc = Pexp_apply (
+                _, _
+            )};
+            next
+        ])}
+    )))} ->
+        find_children next loc
+    | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)} ->
+        (* Done parsing, no children *)
+        None
+    | {pexp_desc = Pexp_construct ({txt = Lident "::"; loc = _}, Some (
+        { pexp_desc = Pexp_tuple ([
+            children;
+            {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
+        ])}
+    ))} ->
+        (* Children element founnnndd *)
+        Some children
+    | _ -> raise (Location.Error (
+        Location.error ~loc "[%jsx] expected a valid children attribute or none"))
+
+let rec parse_child pexp loc =
+    match pexp with
+    | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)} -> 
+        Exp.construct {txt = Lident "[]"; loc=loc} None
+    | {pexp_desc = Pexp_construct ({txt = Lident "::"; loc = _}, Some (
+        { pexp_desc = Pexp_tuple ([
+            child;
+            next
+        ])}
+    ))} -> 
+        let parsed_child = match child with
+        | { pexp_desc = Pexp_constant (Pconst_string (str, None))} ->
+            Exp.construct {txt = Lident "Dom_string"; loc=loc} (Some (
+                Exp.constant (Const_string (str, None))
+            ))
+        | _ ->
+            Location.error ~loc "WAT"
+    | _ -> raise (Location.Error (
+        Location.error ~loc "WAT"
+    ))
+
+
+let parse_children pexp_desc loc =
+    match find_children pexp_desc loc with
+    | Some children_exp ->
+        parse_child children_exp loc
+    | None -> Exp.construct {txt = Lident "[]"; loc=loc} None
+
+let make_component kind ident props children loc =
     let class_constr = match kind with
         | Tag_name -> ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))))
         | React_class -> ("", Exp.construct {txt = Lident "React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})))
     in
     let args = match props with
-    | Some prop_object -> [class_constr; prop_object; ("", Exp.construct {txt = Lident "[]"; loc=loc} None)]
-    | None -> [class_constr; ("", Exp.construct {txt = Lident "[]"; loc=loc} None)] in
+    | Some prop_object -> [class_constr; prop_object; ("", children)]
+    | None -> [class_constr; ("", children)] in
     Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) args
-
 
 let dom_parser_inner pexp_desc loc = 
     match pexp_desc with
     | Pexp_tuple([
         { pexp_desc = Pexp_ident ({txt = Lident ident; loc = _})};
         args
-      ]) -> make_component Tag_name ident (parse_attrs args loc) loc
+        ]) -> make_component Tag_name ident (parse_attrs args loc) (parse_children args loc) loc
     | Pexp_tuple([
         { pexp_desc = Pexp_construct ({txt = Lident ident; loc = _}, None)};
         args
-      ]) -> make_component React_class ident (parse_attrs args loc) loc
+      ]) -> make_component React_class ident (parse_attrs args loc) (parse_children args loc) loc
     | _ -> raise (Location.Error (
         Location.error ~loc "[%jsx] expected a valid DOM node"))
 

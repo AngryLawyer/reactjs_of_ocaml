@@ -1,10 +1,7 @@
-let a = [%jsx [div]]
-let b = [%jsx [div; className "Stylish div"]]
-let c = [%jsx [div; className "Stylish div"; lolName "a"]]
-let d = [%jsx [div; className "Stylish div"; [
-]]]
 let e = [%jsx [div; className "Stylish div"; [
-    [span]
+    "A string"
 ]]]
 
-let c' = ReactJS.create_element (Tag_name "div") ~props:(object%js val className = "Stylish div" end) []
+let x = [
+    Dom_string "A string"
+]
