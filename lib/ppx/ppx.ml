@@ -23,6 +23,14 @@ let rec parse_attr pexp_desc loc collector =
     | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)} ->
         (* Done parsing! *)
         collector
+    | {pexp_desc = Pexp_construct ({txt = Lident "::"; loc = _}, Some (
+        { pexp_desc = Pexp_tuple ([
+            _;
+            {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)}
+        ])}
+    ))} ->
+        (* Children element *)
+        collector
     | _ -> raise (Location.Error (
         Location.error ~loc "[%jsx] expected a valid attribute"))
 
@@ -103,14 +111,3 @@ let jsx_mapper argv =
   }
 
 let () = register "jsx" jsx_mapper
-
-(*        begin match pstr with
-        | (* Should have a single structure item, which is evaluation of a constant string. *)
-          PStr [{ pstr_desc = Pstr_eval ({ pexp_loc  = loc;
-                               pexp_desc = Pexp_constant (Const_string (sym, None))}, _)}] ->
-          (* Replace with a constant string with the value from the environment. *)
-          Exp.constant ~loc (Const_string ("LOL", None))
-        | _ ->
-          raise (Location.Error (
-                  Location.error ~loc "[%jsx] accepts a single DOM node"))
-        end*)
