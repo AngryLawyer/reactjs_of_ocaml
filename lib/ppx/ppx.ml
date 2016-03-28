@@ -32,7 +32,16 @@ let parse_attrs pexp_desc loc =
     if List.length attr_list == 0 then
         None
     else
-        Some ("props", Exp.extension ("js", (* PAYLOAD *))) (* TODO: build props object *)
+        Some ("props", Exp.extension ({txt="js"; loc=loc}, 
+            PStr [
+                Str.eval (
+                    Exp.object_ (
+                        Cstr.mk (Pat.any ()) [
+                        ]
+                    )
+                )
+            ]
+        ))
 
 let make_component kind ident props loc =
     let class_constr = match kind with
