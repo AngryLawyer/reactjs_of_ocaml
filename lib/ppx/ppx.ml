@@ -32,12 +32,14 @@ let parse_attrs pexp_desc loc =
     if List.length attr_list == 0 then
         None
     else
+        let fields = List.map (fun (attr_name, argument) ->
+            Cf.mk (Pcf_val ({txt=attr_name;loc=loc}, Immutable, Cfk_concrete (Fresh, argument)))
+        ) attr_list in
         Some ("props", Exp.extension ({txt="js"; loc=loc}, 
             PStr [
                 Str.eval (
                     Exp.object_ (
-                        Cstr.mk (Pat.any ()) [
-                        ]
+                        Cstr.mk (Pat.any ()) fields
                     )
                 )
             ]
