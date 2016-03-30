@@ -43,7 +43,7 @@ let parse_attrs pexp_desc loc =
         let fields = List.map (fun (attr_name, argument) ->
             Cf.mk (Pcf_val ({txt=attr_name;loc=loc}, Immutable, Cfk_concrete (Fresh, argument)))
         ) attr_list in
-        Some ("props", Exp.extension ({txt="js"; loc=loc}, 
+        Some ("props", Exp.extension ({txt="js"; loc=loc},
             PStr [
                 Str.eval (
                     Exp.object_ (
@@ -80,33 +80,41 @@ let rec find_children pexp loc =
 
 let rec parse_child pexp loc =
     match pexp with
-    | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)} -> 
+    | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)} ->
         Exp.construct {txt = Lident "[]"; loc=loc} None
     | {pexp_desc = Pexp_construct ({txt = Lident "::"; loc = _}, Some (
         { pexp_desc = Pexp_tuple ([
             child;
             next
         ])}
-    ))} -> 
-        let parsed_child = match child with
-        | { pexp_desc = Pexp_constant (Pconst_string (str, None))} ->
-            Exp.construct {txt = Lident "Dom_string"; loc=loc} (Some (
-                Exp.constant (Const_string (str, None))
+    ))} ->
+        begin
+            let constructed_child = match child with
+            (* Strings become Dom_strings *)
+            | { pexp_desc = Pexp_constant (Const_string (str, None))} ->
+                Exp.construct {txt = Lident "Dom_string"; loc=loc} (Some (
+                    Exp.constant (Const_string (str, None))
+                ))
+            (* Sub-items are stuffed on the end *)
+            | { pexp_desc = Pexp_construct ({txt = Lident "::"; loc = _}, _) as pexp_desc } ->
+                dom_parser_inner pexp_desc loc
+            | _ -> raise (Location.Error (
+                Location.error ~loc "Invalid child"
+            )) in
+            Exp.construct {txt = Lident "::"; loc=loc} (Some (
+                Exp.tuple [ constructed_child; parse_child next loc]
             ))
-        | _ ->
-            Location.error ~loc "WAT"
+        end
     | _ -> raise (Location.Error (
-        Location.error ~loc "WAT"
+        Location.error ~loc "Children must be defined as a list"
     ))
-
-
-let parse_children pexp_desc loc =
+and parse_children pexp_desc loc =
     match find_children pexp_desc loc with
     | Some children_exp ->
         parse_child children_exp loc
     | None -> Exp.construct {txt = Lident "[]"; loc=loc} None
 
-let make_component kind ident props children loc =
+and make_component kind ident props children loc =
     let class_constr = match kind with
         | Tag_name -> ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))))
         | React_class -> ("", Exp.construct {txt = Lident "React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})))
@@ -116,7 +124,7 @@ let make_component kind ident props children loc =
     | None -> [class_constr; ("", children)] in
     Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) args
 
-let dom_parser_inner pexp_desc loc = 
+and dom_parser_inner pexp_desc loc =
     match pexp_desc with
     | Pexp_tuple([
         { pexp_desc = Pexp_ident ({txt = Lident ident; loc = _})};
