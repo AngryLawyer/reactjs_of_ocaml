@@ -80,9 +80,9 @@ let rec find_children pexp loc =
 
 let rec parse_child pexp loc =
     match pexp with
-    | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = _}, None)} ->
+    | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = loc}, None)} ->
         Exp.construct {txt = Lident "[]"; loc=loc} None
-    | {pexp_desc = Pexp_construct ({txt = Lident "::"; loc = _}, Some (
+    | {pexp_desc = Pexp_construct ({txt = Lident "::"; loc = loc}, Some (
         { pexp_desc = Pexp_tuple ([
             child;
             next
@@ -101,6 +101,11 @@ let rec parse_child pexp loc =
                 ))
             } ->
                 Exp.construct {txt = Lident "React_element"; loc=loc} (Some (dom_parser_inner pexp_desc loc))
+            (* Code blocks are returned as-is *)
+            | { pexp_desc = Pexp_extension ({txt = "code"; loc = _},
+                PStr [{ pstr_desc = Pstr_eval(pexp_desc, _)}]
+            )} ->
+                pexp_desc
             | _ -> raise (Location.Error (
                 Location.error ~loc "Invalid child"
             )) in

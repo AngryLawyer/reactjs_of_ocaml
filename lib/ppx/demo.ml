@@ -1,6 +1,7 @@
 let e = [%jsx [div; className "Stylish div"; [
     "A string";
-    [span]
+    [span];
+    [%code call lol]
 ]]]
 
 let x = [
