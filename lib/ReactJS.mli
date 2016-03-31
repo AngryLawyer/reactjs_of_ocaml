@@ -7,7 +7,7 @@ type tag_type =
     | React_class of react_class
 
 type content_type =
-    | Dom_string of string
+    | Dom_string of Js.string
     | React_element of react_element Js.t
     | Element_list of content_type list
     | No_content
