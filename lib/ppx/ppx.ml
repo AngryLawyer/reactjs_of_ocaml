@@ -96,8 +96,11 @@ let rec parse_child pexp loc =
                     Exp.constant (Const_string (str, None))
                 ))
             (* Sub-items are stuffed on the end *)
-            | { pexp_desc = Pexp_construct ({txt = Lident "::"; loc = _}, _) as pexp_desc } ->
-                dom_parser_inner pexp_desc loc
+            | { pexp_desc = Pexp_construct ({txt = Lident "::"; loc = loc}, Some (
+                    { pexp_desc=pexp_desc }
+                ))
+            } ->
+                Exp.construct {txt = Lident "React_element"; loc=loc} (Some (dom_parser_inner pexp_desc loc))
             | _ -> raise (Location.Error (
                 Location.error ~loc "Invalid child"
             )) in
