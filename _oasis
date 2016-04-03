@@ -8,12 +8,16 @@ License:      MIT
 BuildTools:   ocamlbuild
 OCamlVersion: >= 4.02
 
+FilesAB:      lib/ppx/META.ab
+PreInstallCommand:   $ocamlfind install reactjs_ppx lib/ppx/META
+PreUninstallCommand: $ocamlfind remove reactjs_ppx
+
 Library reactjs
   Path:         lib
   BuildDepends: js_of_ocaml (>= 2.6), js_of_ocaml.ppx (>= 2.6)
   Modules:      ReactJS, ReactDOM
 
-Executable "reactjs.ppx"
+Executable reactjs_ppx
     Path:           lib/ppx
     MainIs:         ppx.ml
     CompiledObject: best
