@@ -11,14 +11,14 @@ type tag_type =
     | React_class of react_class
 
 type content_type =
-    | Dom_string of Js.string
+    | Dom_string of string
     | React_element of react_element Js.t
     | Element_list of content_type list
     | No_content
 
 let rec content_list_to_js content_list =
     List.map (function
-        | Dom_string s -> Js.Unsafe.inject s
+        | Dom_string s -> Js.Unsafe.inject (Js.string s)
         | React_element e -> Js.Unsafe.inject e
         | Element_list l -> Js.Unsafe.inject (
             Js.array (

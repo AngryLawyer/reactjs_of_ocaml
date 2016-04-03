@@ -93,9 +93,7 @@ let rec parse_child pexp loc =
             (* Strings become Dom_strings *)
             | { pexp_desc = Pexp_constant (Const_string (str, None))} ->
                 Exp.construct {txt = Lident "Dom_string"; loc=loc} (Some (
-                    Exp.construct {txt = Lident "Js.string"; loc=loc} (Some (
-                        Exp.constant (Const_string (str, None))
-                    ))
+                    Exp.constant (Const_string (str, None))
                 ))
             (* Sub-items are stuffed on the end *)
             | { pexp_desc = Pexp_construct ({txt = Lident "::"; loc = loc}, Some (
