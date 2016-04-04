@@ -21,6 +21,7 @@ Library reactjs
 Executable reactjs_ppx
     Path:           lib/ppx
     MainIs:         ppx.ml
+    BuildDepends:   compiler-libs.common
     CompiledObject: best
 
 SourceRepository master
