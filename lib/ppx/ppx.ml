@@ -92,7 +92,7 @@ let rec parse_child pexp loc =
             let constructed_child = match child with
             (* Strings become Dom_strings *)
             | { pexp_desc = Pexp_constant (Const_string (str, None))} ->
-                Exp.construct {txt = Lident "Dom_string"; loc=loc} (Some (
+                Exp.construct {txt = Longident.parse "ReactJS.Dom_string"; loc=loc} (Some (
                     Exp.constant (Const_string (str, None))
                 ))
             (* Sub-items are stuffed on the end *)
@@ -100,7 +100,7 @@ let rec parse_child pexp loc =
                     { pexp_desc=pexp_desc }
                 ))
             } ->
-                Exp.construct {txt = Lident "React_element"; loc=loc} (Some (dom_parser_inner pexp_desc loc))
+                Exp.construct {txt = Longident.parse "ReactJS.React_element"; loc=loc} (Some (dom_parser_inner pexp_desc loc))
             (* Code blocks are returned as-is *)
             | { pexp_desc = Pexp_extension ({txt = "code"; loc = _},
                 PStr [{ pstr_desc = Pstr_eval(pexp_desc, _)}]
@@ -124,13 +124,13 @@ and parse_children pexp_desc loc =
 
 and make_component kind ident props children loc =
     let class_constr = match kind with
-        | Tag_name -> ("", Exp.construct {txt = Lident "Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))))
-        | React_class -> ("", Exp.construct {txt = Lident "React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})))
+        | Tag_name -> ("", Exp.construct {txt = Longident.parse "ReactJS.Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))))
+        | React_class -> ("", Exp.construct {txt = Longident.parse "ReactJS.React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})))
     in
     let args = match props with
     | Some prop_object -> [class_constr; prop_object; ("", children)]
     | None -> [class_constr; ("", children)] in
-    Exp.apply ~loc (Exp.ident {txt = Lident "ReactJS.create_element"; loc=loc}) args
+    Exp.apply ~loc (Exp.ident {txt = Longident.parse "ReactJS.create_element"; loc=loc}) args
 
 and dom_parser_inner pexp_desc loc =
     match pexp_desc with
