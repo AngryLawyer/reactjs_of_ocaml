@@ -2,7 +2,9 @@ OASISFormat:  0.4
 Name:         reactjs_of_ocaml
 Version:      0.1
 Synopsis:     js_of_ocaml bindings for React.JS
+Description:  js_of_ocaml bindings for React.JS, including a syntax extension for easy creation of React elements.
 Authors:      Tony Aldridge <tony@angry-lawyer.com>
+Maintainers:  Tony Aldridge <tony@angry-lawyer.com>
 Homepage:     https://github.com/angrylawyer/reactjs_of_ocaml
 License:      MIT
 BuildTools:   ocamlbuild

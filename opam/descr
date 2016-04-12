@@ -1,0 +1,4 @@
+js_of_ocaml bindings for React.JS
+js_of_ocaml bindings for React.JS, including a syntax extension for
+easy creation of React elements.
+
