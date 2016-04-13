@@ -177,8 +177,10 @@ let jsx_mapper argv =
           (* Should have name "jsx". *)
           Pexp_extension ({ txt = "jsx"; loc }, pstr)} ->
               single_item_parser pstr loc
-      (* Delegate to the default mapper. *)
-      | x -> default_mapper.expr mapper x;
+      (* Delegate to js_of_ocaml. *)
+      | x ->
+        let mapper = Ppx_js.js_mapper [] in
+        mapper.expr mapper x
   }
 
 let () = register "jsx" jsx_mapper

@@ -1,8 +1,8 @@
 # OASIS_START
-# DO NOT EDIT (digest: c2469810936a3761724ffe7ac6f88297)
+# DO NOT EDIT (digest: babf2240566260fd78eb41d22875cd1f)
 version = "0.1"
 description = "js_of_ocaml bindings for React.JS"
-requires = "js_of_ocaml js_of_ocaml.ppx"
+requires = "js_of_ocaml"
 archive(byte) = "reactjs.cma"
 archive(byte, plugin) = "reactjs.cma"
 archive(native) = "reactjs.cmxa"
