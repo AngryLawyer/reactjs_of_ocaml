@@ -43,7 +43,7 @@ let parse_attrs pexp_desc loc =
         let fields = List.map (fun (attr_name, argument) ->
             Cf.mk (Pcf_val ({txt=attr_name;loc=loc}, Immutable, Cfk_concrete (Fresh, argument)))
         ) attr_list in
-        Some ("props", Exp.extension ({txt="js"; loc=loc},
+        let fragment = Exp.extension ({txt="js"; loc=loc},
             PStr [
                 Str.eval (
                     Exp.object_ (
@@ -51,7 +51,10 @@ let parse_attrs pexp_desc loc =
                     )
                 )
             ]
-        ))
+        ) in
+        let mapper = Ppx_js.js_mapper [] in
+        let parsed = mapper.expr mapper fragment in
+        Some ("props", parsed)
 
 let rec find_children pexp loc =
     match pexp with

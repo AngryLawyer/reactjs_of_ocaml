@@ -23,8 +23,8 @@ Library reactjs
 Executable reactjs_ppx
     Path:           lib/ppx
     MainIs:         ppx.ml
-    BuildDepends:   compiler-libs.common
-    CompiledObject: best
+    BuildDepends:   compiler-libs.common, js_of_ocaml.ppx.internal (>= 2.6)
+    CompiledObject: byte
 
 SourceRepository master
   Type:     git

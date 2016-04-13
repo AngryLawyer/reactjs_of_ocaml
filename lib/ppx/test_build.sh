@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-ocamlbuild -package compiler-libs.common ppx.native
+ocamlbuild -use-ocamlfind -package compiler-libs.common,js_of_ocaml.ppx.internal ppx.byte
