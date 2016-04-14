@@ -41,20 +41,12 @@ let parse_attrs pexp_desc loc =
         None
     else
         let fields = List.map (fun (attr_name, argument) ->
-            Cf.mk (Pcf_val ({txt=attr_name;loc=loc}, Immutable, Cfk_concrete (Fresh, argument)))
+            let top_argument = Exp.apply ~loc (Exp.ident {txt = Longident.parse "Js.Unsafe.inject"; loc=loc}) [("", argument)] in
+            Exp.tuple [Exp.constant (Const_string (attr_name, None)); top_argument]
         ) attr_list in
-        let fragment = Exp.extension ({txt="js"; loc=loc},
-            PStr [
-                Str.eval (
-                    Exp.object_ (
-                        Cstr.mk (Pat.any ()) fields
-                    )
-                )
-            ]
-        ) in
-        let mapper = Ppx_js.js_mapper [] in
-        let parsed = mapper.expr mapper fragment in
-        Some ("props", parsed)
+        let args = [("", Exp.array fields)] in
+        let fragment = Exp.apply ~loc (Exp.ident {txt = Longident.parse "Js.Unsafe.obj"; loc=loc}) args in
+        Some ("props", fragment)
 
 let rec find_children pexp loc =
     match pexp with
@@ -178,17 +170,8 @@ let jsx_mapper argv =
           Pexp_extension ({ txt = "jsx"; loc }, pstr)} ->
               single_item_parser pstr loc
       (* Delegate to the default mapper. *)
-      | x -> default_mapper.expr mapper x;
+      | x ->
+        default_mapper.expr mapper x
   }
 
-let combined_mapper argv =
-  { default_mapper with
-    expr = fun mapper expr ->
-        (* Parse the JSX first *)
-        let first_pass = (jsx_mapper []).expr mapper expr in
-        (* Then delegate to js_of_ocaml *)
-        (Ppx_js.js_mapper []).expr mapper first_pass
-  }
-
-
-let () = register "jsx" combined_mapper
+let () = register "jsx" jsx_mapper

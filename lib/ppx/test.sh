@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-ocamlc -dsource -ppx ./_build/ppx.byte $1
+ocamlc -dsource -ppx reactjs_ppx $1
