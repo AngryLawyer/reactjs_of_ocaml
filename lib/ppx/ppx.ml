@@ -98,9 +98,9 @@ let rec parse_child pexp loc mappers =
                 Exp.construct {txt = Longident.parse "ReactJS.React_element"; loc=loc} (Some (dom_parser_inner pexp_desc loc mappers))
             (* Code blocks are returned as-is *)
             | { pexp_desc = Pexp_extension ({txt = "code"; loc = _},
-                PStr [{ pstr_desc = Pstr_eval(pexp_desc, _)}]
+                PStr [{ pstr_desc = Pstr_eval(inner, _)}]
             )} ->
-                root_parser mappers child
+                root_parser mappers inner
             | _ -> raise (Location.Error (
                 Location.error ~loc "Invalid child"
             )) in
