@@ -73,7 +73,7 @@ let rec find_children pexp loc =
     | _ -> raise (Location.Error (
         Location.error ~loc "[%jsx] expected a valid children attribute or none"))
 
-let rec parse_child pexp loc =
+let rec parse_child pexp loc mappers =
     match pexp with
     | {pexp_desc = Pexp_construct ({txt = Lident "[]"; loc = loc}, None)} ->
         Exp.construct {txt = Lident "[]"; loc=loc} None
@@ -95,26 +95,26 @@ let rec parse_child pexp loc =
                     { pexp_desc=pexp_desc }
                 ))
             } ->
-                Exp.construct {txt = Longident.parse "ReactJS.React_element"; loc=loc} (Some (dom_parser_inner pexp_desc loc))
+                Exp.construct {txt = Longident.parse "ReactJS.React_element"; loc=loc} (Some (dom_parser_inner pexp_desc loc mappers))
             (* Code blocks are returned as-is *)
             | { pexp_desc = Pexp_extension ({txt = "code"; loc = _},
                 PStr [{ pstr_desc = Pstr_eval(pexp_desc, _)}]
             )} ->
-                pexp_desc
+                root_parser mappers child
             | _ -> raise (Location.Error (
                 Location.error ~loc "Invalid child"
             )) in
             Exp.construct {txt = Lident "::"; loc=loc} (Some (
-                Exp.tuple [ constructed_child; parse_child next loc]
+                Exp.tuple [constructed_child; parse_child next loc mappers]
             ))
         end
     | _ -> raise (Location.Error (
         Location.error ~loc "Children must be defined as a list"
     ))
-and parse_children pexp_desc loc =
+and parse_children pexp_desc loc mappers =
     match find_children pexp_desc loc with
     | Some children_exp ->
-        parse_child children_exp loc
+        parse_child children_exp loc mappers
     | None -> Exp.construct {txt = Lident "[]"; loc=loc} None
 
 and make_component kind ident props children loc =
@@ -127,51 +127,55 @@ and make_component kind ident props children loc =
     | None -> [class_constr; ("", children)] in
     Exp.apply ~loc (Exp.ident {txt = Longident.parse "ReactJS.create_element"; loc=loc}) args
 
-and dom_parser_inner pexp_desc loc =
+and dom_parser_inner pexp_desc loc mappers =
     match pexp_desc with
     | Pexp_tuple([
         { pexp_desc = Pexp_ident ({txt = Lident ident; loc = _})};
         args
-        ]) -> make_component Tag_name ident (parse_attrs args loc) (parse_children args loc) loc
+        ]) -> make_component Tag_name ident (parse_attrs args loc) (parse_children args loc mappers) loc
     | Pexp_tuple([
         { pexp_desc = Pexp_construct ({txt = Lident ident; loc = _}, None)};
         args
-      ]) -> make_component React_class ident (parse_attrs args loc) (parse_children args loc) loc
+      ]) -> make_component React_class ident (parse_attrs args loc) (parse_children args loc mappers) loc
     | _ -> raise (Location.Error (
         Location.error ~loc "[%jsx] expected a valid DOM node"))
 
-let dom_parser pexp_desc loc =
+and dom_parser pexp_desc loc mappers =
     match pexp_desc with
     | Pexp_construct ({loc = loc},
             Some { pexp_desc = desc}
         ) ->
-            dom_parser_inner desc loc
+            dom_parser_inner desc loc mappers
     | _ -> raise (Location.Error (
         Location.error ~loc "[%jsx] expected a valid DOM node"))
 
 
-let single_item_parser pstr loc =
+and single_item_parser pstr loc mappers =
     match pstr with
     | PStr [{ pstr_desc = Pstr_eval({
             pexp_loc = loc; pexp_desc
         }, _)}] ->
-            dom_parser pexp_desc loc
+            dom_parser pexp_desc loc mappers
     | _ ->
         raise (Location.Error (
             Location.error ~loc "[%jsx] accepts a single DOM node"))
 
+and root_parser mappers expr =
+    let mapper, default_mapper = mappers in
+    match expr with
+    (* Is this an extension node? *)
+    | { pexp_desc =
+      (* Should have name "jsx". *)
+      Pexp_extension ({ txt = "jsx"; loc }, pstr)} ->
+          single_item_parser pstr loc mappers
+    (* Delegate to the default mapper. *)
+    | x ->
+        default_mapper.expr mapper x
+
 let jsx_mapper argv =
   { default_mapper with
     expr = fun mapper expr ->
-      match expr with
-      (* Is this an extension node? *)
-      | { pexp_desc =
-          (* Should have name "jsx". *)
-          Pexp_extension ({ txt = "jsx"; loc }, pstr)} ->
-              single_item_parser pstr loc
-      (* Delegate to the default mapper. *)
-      | x ->
-        default_mapper.expr mapper x
+        root_parser (mapper, default_mapper) expr
   }
 
 let () = register "jsx" jsx_mapper
