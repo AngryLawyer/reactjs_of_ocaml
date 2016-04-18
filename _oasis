@@ -34,6 +34,10 @@ Executable test
     BuildDepends:   oUnit,reactjs,js_of_ocaml
     CompiledObject: byte
 
+Test test
+    Type: Custom (0.0.1)
+    Command: test/run_tests
+
 SourceRepository master
   Type:     git
   Location: https://github.com/angrylawyer/reactjs_of_ocaml.git
