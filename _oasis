@@ -14,6 +14,7 @@ Plugins:     META (0.4)
 FilesAB:      lib/ppx/META.ab
 PreInstallCommand:   $ocamlfind install reactjs_ppx lib/ppx/META
 PreUninstallCommand: $ocamlfind remove reactjs_ppx
+PostBuildCommand: js_of_ocaml "_build/test/test.byte"
 
 Library reactjs
   Path:         lib
@@ -24,6 +25,13 @@ Executable reactjs_ppx
     Path:           lib/ppx
     MainIs:         ppx.ml
     BuildDepends:   compiler-libs.common
+    CompiledObject: byte
+
+Executable test
+    Install:        false
+    Path:           test
+    MainIs:         test.ml
+    BuildDepends:   oUnit,reactjs,js_of_ocaml
     CompiledObject: byte
 
 SourceRepository master

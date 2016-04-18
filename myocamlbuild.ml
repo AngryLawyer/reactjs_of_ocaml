@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 70950c868de6a4cd842a9edf5704b90e) *)
+(* DO NOT EDIT (digest: 4a36f399c288bc0bb4fc73585e47ca7c) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -610,7 +610,7 @@ let package_default =
      MyOCamlbuildBase.lib_ocaml = [("reactjs", ["lib"], [])];
      lib_c = [];
      flags = [];
-     includes = []
+     includes = [("test", ["lib"])]
   }
   ;;
 
