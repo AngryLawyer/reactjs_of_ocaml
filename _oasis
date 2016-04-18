@@ -36,7 +36,7 @@ Executable test
 
 Test test
     Type: Custom (0.0.1)
-    Command: test/run_tests
+    Command: cd test && npm install && npm test
 
 SourceRepository master
   Type:     git

@@ -1,0 +1,12 @@
+{
+  "name": "reactjs_of_ocaml_tests",
+  "version": "0.1.0",
+  "scripts": {
+    "test": "karma start"
+  },
+  "devDependencies": {
+    "karma": "^0.13.22",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "phantomjs-prebuilt": "^2.1.7"
+  }
+}
