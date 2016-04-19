@@ -4,10 +4,13 @@
     return text.replace(/\x1B\[[0-9]{0,5}m/g, '');
   }
 
+  function parseResults(karma, resultBuffer) {
+  }
+
   function createStartFn(karma) {
     return function () {
       win.startTests();
-      console.log(win.stdout_buffer.map(stripControlSequences).join("\n"));
+      parseResults(karma, win.stdout_buffer);
 
       karma.complete({});
     };
