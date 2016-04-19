@@ -10,7 +10,7 @@
     };
   }
 
-  win.__karma__.start = createStartFn(window.__karma__);
+  win.__karma__.start = createStartFn(win.__karma__);
   win.dump = createDumpFn(win.__karma__, function (value) {
     return value;
   });
