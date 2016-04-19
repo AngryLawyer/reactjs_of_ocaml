@@ -1,6 +1,14 @@
 (function (win) {
+  
+  function stripControlSequences(text) {
+    return text.replace(/\x1B\[[0-9]{0,5}m/g, '');
+  }
+
   function createStartFn(karma) {
     return function () {
+      win.startTests();
+      console.log(win.stdout_buffer.map(stripControlSequences).join("\n"));
+
       karma.complete({});
     };
   }
