@@ -1,6 +1,7 @@
 (function (win) {
   function createStartFn(karma) {
     return function () {
+      karma.complete({});
     };
   }
 
