@@ -16,6 +16,7 @@ let test_set = [
 let () =
     Js.Unsafe.global##.startTests := (fun () ->
         try Alcotest.run ~and_exit:false "My first test" [
-            "test_set", test_set
+            "test_set", test_set;
+            "test_set_2", test_set
         ] with Alcotest.Test_error -> ()
    )
