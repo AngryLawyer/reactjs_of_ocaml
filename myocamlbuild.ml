@@ -1,5 +1,5 @@
 (* OASIS_START *)
-(* DO NOT EDIT (digest: 4a36f399c288bc0bb4fc73585e47ca7c) *)
+(* DO NOT EDIT (digest: 3a7ee6b45cf7887c04b5e7c35fc4406c) *)
 module OASISGettext = struct
 (* # 22 "src/oasis/OASISGettext.ml" *)
 
@@ -609,7 +609,15 @@ let package_default =
   {
      MyOCamlbuildBase.lib_ocaml = [("reactjs", ["lib"], [])];
      lib_c = [];
-     flags = [];
+     flags =
+       [
+          (["oasis_executable_test_byte"; "ocaml"; "link"; "byte"],
+            [(OASISExpr.EBool true, S [A "-g"])]);
+          (["oasis_executable_test_byte"; "ocaml"; "ocamldep"; "byte"],
+            [(OASISExpr.EBool true, S [A "-g"])]);
+          (["oasis_executable_test_byte"; "ocaml"; "compile"; "byte"],
+            [(OASISExpr.EBool true, S [A "-g"])])
+       ];
      includes = [("test", ["lib"])]
   }
   ;;
@@ -618,6 +626,6 @@ let conf = {MyOCamlbuildFindlib.no_automatic_syntax = false}
 
 let dispatch_default = MyOCamlbuildBase.dispatch_default conf package_default;;
 
-# 622 "myocamlbuild.ml"
+# 630 "myocamlbuild.ml"
 (* OASIS_STOP *)
 Ocamlbuild_plugin.dispatch dispatch_default;;

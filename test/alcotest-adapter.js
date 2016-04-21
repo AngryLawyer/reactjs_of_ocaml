@@ -4,21 +4,29 @@
     return text.replace(/\x1B\[[0-9]{0,5}m/g, '');
   }
 
-  function sliceToNextResult(resultBuffer) {
+  function findNextIndex(array, callback) {
     var nextStart = -1;
-    for (var i = 0; i < resultBuffer.length; ++i) {
-      if (/\.\.\./.test(resultBuffer[i])) {
+    for (var i = 0; i < array.length; ++i) {
+      if (callback(array[i])) {
         nextStart = i;
         break;
       }
     }
+    return nextStart;
+  }
+
+  function sliceToNextResult(resultBuffer) {
+    var nextStart = findNextIndex(resultBuffer, function (line) {
+      return (/\.\.\./.test(line));
+    });
+
     if (nextStart === -1) {
       return [];
     }
     return resultBuffer.slice(nextStart + 1);
   }
 
-  function parseNextResult(karma, resultBuffer) {
+  function parseNextResult(resultBuffer) {
     if (resultBuffer.length < 3) {
       // No more tests
       return;
@@ -32,29 +40,41 @@
     // Next line is either empty, or an error code
     var errorLine = resultBuffer[1];
     var success = true;
+    var errorText = [];
     if (errorLine.indexOf('[failure]') === 0) {
       success = false;
+      var errorsEnd = findNextIndex(resultBuffer, function (line) {
+        return (/^\[ERROR\]/.test(line));
+      });
+      errorText = resultBuffer.slice(1, errorsEnd).filter(function (item) { return item.trim(); });
     }
 
     var result = {
       description: name,
       id: id,
-      log: [],
+      log: errorText,
       skipped: false,
       success: success,
       suite: [suite],
       time: 0,
       executedExpectationsCount: 1
     };
-    karma.result(result);
+    return result;
   }
 
   function parseResults(karma, resultBuffer) {
-    console.log(resultBuffer);
+    var resultList = [];
     while (resultBuffer.length > 0) {
       resultBuffer = sliceToNextResult(resultBuffer);
-      parseNextResult(karma, resultBuffer);
+      resultList.push(parseNextResult(resultBuffer));
     }
+    resultList = resultList.filter(function (x) { return x; });
+    karma.info({
+      total: resultList.length
+    });
+    resultList.forEach(function (result) {
+      karma.result(result);
+    });
   }
 
   function createStartFn(karma) {
@@ -66,7 +86,7 @@
     };
   }
 
-  function createDumpFn(karma, serialize) {
+  function createDumpFn(karma) {
     return function () {
       karma.info({dump: [].slice.call(arguments) });
     };
