@@ -2,7 +2,7 @@
 OPAM_DEPENDS="ocamlfind js_of_ocaml alcotest"
 
 case "$OCAML_VERSION,$OPAM_VERSION" in
-4.02.3,1.2.0) ppa=avsm/ocaml42+opam120 ;;
+4.02.3,1.2.2) ppa=avsm/ocaml42+opam12 ;;
 *) echo Unknown $OCAML_VERSION,$OPAM_VERSION; exit 1 ;;
 esac
 
