@@ -17,3 +17,5 @@ val get_prop : react_props -> string -> 'a option
 
 val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_class
 val create_element : tag_type -> ?props : < .. > Js.t -> content_type list -> react_element Js.t
+
+val is_valid_element: react_element Js.t -> bool
