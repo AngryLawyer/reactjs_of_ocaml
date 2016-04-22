@@ -19,3 +19,15 @@ val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_cla
 val create_element : tag_type -> ?props : < .. > Js.t -> content_type list -> react_element Js.t
 
 val is_valid_element: react_element Js.t -> bool
+
+module type ReactProps = sig
+    type t
+end
+
+module type RC = sig
+    type t
+    val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_class
+    val get_props : < render : react_element Js.t Js.meth; .. > Js.t -> t
+end
+
+module Make_ReactClass(PropSpec: ReactProps): RC with type t = PropSpec.t

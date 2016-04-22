@@ -58,3 +58,23 @@ let get_props self =
 
 let get_prop react_props key =
     Js.Optdef.to_option (Js.Unsafe.get react_props key)
+
+module type ReactProps = sig
+    type t
+end
+
+module type RC = sig
+    type t
+    val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_class
+    val get_props : < render : react_element Js.t Js.meth; .. > Js.t -> t
+end
+
+module Make_ReactClass(PropSpec: ReactProps) = struct
+    type t = PropSpec.t
+
+    let create_class spec =
+        Js.Unsafe.meth_call reactJs "createClass" [| Js.Unsafe.inject spec |]
+
+    let get_props self =
+        Js.Unsafe.get self "props"
+end
