@@ -3,11 +3,14 @@ let create_element () =
     Alcotest.(check bool) "is a valid element" (ReactJS.is_valid_element element) true
 
 
-module My_class = ReactJS.Make_ReactClass(struct type t = <  > end)
+module My_class = ReactJS.Make_ReactClass(struct type t = < name: string Js.readonly_prop > Js.t end)
 let create_class () =
     let react_class = My_class.create_class(object%js (self)
         method render =
-            (ReactJS.create_element (ReactJS.Tag_name "div") [])
+            let props = My_class.get_props self in
+            (ReactJS.create_element (ReactJS.Tag_name "span") [
+                ReactJS.Dom_string (props##.name)
+            ])
     end) in
     ()
 
