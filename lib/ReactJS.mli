@@ -14,6 +14,7 @@ type content_type =
 
 val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_class
 val create_element : tag_type -> ?props : < .. > Js.t -> content_type list -> react_element Js.t
+val set_state : < render : react_element Js.t Js.meth; .. > Js.t -> < .. > Js.t -> unit
 
 val is_valid_element: react_element Js.t -> bool
 

@@ -50,6 +50,9 @@ let create_element dom_class ?props content_list =
 let create_class spec =
     Js.Unsafe.meth_call reactJs "createClass" [| Js.Unsafe.inject spec |]
 
+let set_state self values =
+    Js.Unsafe.meth_call self "setState" [| Js.Unsafe.inject values |]
+    
 let is_valid_element element =
     Js.Unsafe.meth_call reactJs "isValidElement" [| Js.Unsafe.inject element |]
 
