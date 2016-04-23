@@ -53,28 +53,30 @@ let create_class spec =
 let is_valid_element element =
     Js.Unsafe.meth_call reactJs "isValidElement" [| Js.Unsafe.inject element |]
 
-let get_props self =
-    Js.Unsafe.get self "props"
-
-let get_prop react_props key =
-    Js.Optdef.to_option (Js.Unsafe.get react_props key)
-
-module type ReactProps = sig
-    type t
+module type ReactClassSpec = sig
+    type props_spec
+    type state_spec
 end
 
 module type RC = sig
-    type t
+    type props_spec
+    type state_spec
+
     val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_class
-    val get_props : < render : react_element Js.t Js.meth; .. > Js.t -> t
+    val get_props : < render : react_element Js.t Js.meth; .. > Js.t -> props_spec
+    val get_state : < render : react_element Js.t Js.meth; .. > Js.t -> state_spec
 end
 
-module Make_ReactClass(PropSpec: ReactProps) = struct
-    type t = PropSpec.t
+module Make_ReactClass(ClassSpec: ReactClassSpec) = struct
+    type props_spec = ClassSpec.props_spec
+    type state_spec = ClassSpec.state_spec
 
     let create_class spec =
         Js.Unsafe.meth_call reactJs "createClass" [| Js.Unsafe.inject spec |]
 
     let get_props self =
         Js.Unsafe.get self "props"
+
+    let get_state self =
+        Js.Unsafe.get self "state"
 end

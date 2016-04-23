@@ -12,22 +12,22 @@ type content_type =
     | Element_list of content_type list
     | No_content
 
-val get_props : < render : react_element Js.t Js.meth; .. > Js.t -> react_props
-val get_prop : react_props -> string -> 'a option
-
 val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_class
 val create_element : tag_type -> ?props : < .. > Js.t -> content_type list -> react_element Js.t
 
 val is_valid_element: react_element Js.t -> bool
 
-module type ReactProps = sig
-    type t
+module type ReactClassSpec = sig
+    type props_spec
+    type state_spec
 end
 
 module type RC = sig
-    type t
+    type props_spec
+    type state_spec
     val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_class
-    val get_props : < render : react_element Js.t Js.meth; .. > Js.t -> t
+    val get_props : < render : react_element Js.t Js.meth; .. > Js.t -> props_spec
+    val get_state : < render : react_element Js.t Js.meth; .. > Js.t -> state_spec
 end
 
-module Make_ReactClass(PropSpec: ReactProps): RC with type t = PropSpec.t
+module Make_ReactClass(ClassSpec: ReactClassSpec): RC with type props_spec = ClassSpec.props_spec and type state_spec = ClassSpec.state_spec

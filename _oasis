@@ -19,7 +19,7 @@ PostBuildCommand: js_of_ocaml "test/stubs.js" "_build/test/test.byte"
 Library reactjs
   Path:         lib
   BuildDepends: js_of_ocaml (>= 2.6), js_of_ocaml.ppx (>= 2.6)
-  Modules:      ReactJS, ReactDOM, ReactDOMServer
+  Modules:      ReactJS, ReactDOM
 
 Executable reactjs_ppx
     Path:           lib/ppx
