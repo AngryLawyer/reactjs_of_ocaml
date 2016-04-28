@@ -15,8 +15,6 @@ module.exports = function(config) {
 
     // list of files / patterns to load in the browser
     files: [
-      './react-15.0.1.js',
-      './react-dom-15.0.1.js',
       '../_build/test/test.js'
     ],
 
@@ -29,6 +27,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      '../_build/test/test.js': ['webpack']
     },
 
 
@@ -68,8 +67,13 @@ module.exports = function(config) {
     // how many browser should be started simultaneous
     concurrency: Infinity,
     plugins: [
+      'karma-webpack',
       'karma-phantomjs-launcher',
       require('./alcotest-plugin')
-    ]
+    ],
+
+    webpackMiddleware: {
+      noInfo: true
+    }
   });
 };
