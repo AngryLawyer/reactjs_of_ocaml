@@ -18,7 +18,7 @@ PostBuildCommand: js_of_ocaml "test/stubs.js" "_build/test/test.byte"
 
 Library reactjs
   Path:         lib
-  BuildDepends: js_of_ocaml (>= 2.6), js_of_ocaml.ppx (>= 2.6)
+  BuildDepends: js_of_ocaml (>= 2.6), js_of_ocaml.ppx (>= 2.6),commonjs_ppx
   Modules:      ReactJS, ReactDOM
 
 Executable reactjs_ppx
@@ -31,7 +31,7 @@ Executable test
     Install:        false
     Path:           test
     MainIs:         test.ml
-    BuildDepends:   alcotest,reactjs,js_of_ocaml
+    BuildDepends:   alcotest,reactjs,js_of_ocaml,commonjs_ppx
     ByteOpt:        -g
     CompiledObject: byte
 

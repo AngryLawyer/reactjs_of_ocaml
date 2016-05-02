@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-ocamlc -dparsetree demo.ml
+ocamlc -dparsetree $1

@@ -1,4 +1,4 @@
-let reactJs = CommonJs.require "react" ?fallback:(Some "React")
+let reactJs = [%require "react"]
 class type react_element = object end
 class type react_class = object end
 class type react_props = object end
