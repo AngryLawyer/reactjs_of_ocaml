@@ -17,9 +17,7 @@ eval `opam config env`
 # commonjs_of_ocaml isn't on opam yet, so install it here
 git clone https://github.com/AngryLawyer/commonjs_of_ocaml.git
 cd commonjs_of_ocaml
-ocaml setup.ml -configure
-ocaml setup.ml -build
-ocaml setup.ml -install
+opam pin add commonjs_of_ocaml .
 cd -
 
 ocaml setup.ml -configure --enable-tests
