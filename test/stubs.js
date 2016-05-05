@@ -21,7 +21,7 @@ function unix_open () {
 //Provides: unix_close
 function unix_close () {
 }
-
+/*
 //Provides: js_print_stdout (const)
 function js_print_stdout(s) {
   if (!window.stdout_buffer) {
@@ -36,4 +36,4 @@ function js_print_stderr(s) {
     window.stderr_buffer = [];
   }
   window.stderr_buffer.push(s);
-}
+}*/
