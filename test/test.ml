@@ -18,8 +18,15 @@ let create_class () =
     end) in
     let element = ReactJS.create_element (ReactJS.React_class react_class) ~props:(object%js val name = "Hello" end) [] in
     (* Check we get the doodad out the other end *)
-    ignore (ReactDOM.render element Test_helpers.container);
-    Alcotest.(check bool) "contains our Hello message" (Test_helpers.contains (Test_helpers.get_raw_html ()) "Hello") true
+    let rendered = (ReactAddonsTestUtils.render_into_document element) in
+    let element = ReactDOM.find_dom_node rendered in
+    Alcotest.(check bool) "contains our Hello message" begin
+        match Js.Opt.to_option element with
+        | Some x ->
+            let content = Js.to_string x##.innerHTML in
+            content = "Hello"
+        | None -> false
+    end true
 
 
 let reactjs_test_set = [
