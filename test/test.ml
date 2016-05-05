@@ -31,6 +31,5 @@ let () =
     Js.Unsafe.global##.startTests := (fun () ->
         try Alcotest.run ~and_exit:false "ReactJs Test Suite" [
             "ReactJS", reactjs_test_set;
-        ] with Alcotest.Test_error -> ();
-        Printf.printf "%!"
+        ] with Alcotest.Test_error -> ()
    )
