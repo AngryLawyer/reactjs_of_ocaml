@@ -24,25 +24,16 @@ function unix_close () {
 
 //Provides: js_print_stdout (const)
 function js_print_stdout(s) {
-  var g = joo_global_object;
-  if (g.process && g.process.stdout && g.process.stdout.write) {
-    g.process.stdout.write(s);
-  } else {
-    if (!window.stdout_buffer) {
-      window.stdout_buffer = [];
-    }
-    window.stdout_buffer.push(s);
+  if (!window.stdout_buffer) {
+    window.stdout_buffer = [];
   }
+  window.stdout_buffer.push(s);
 }
+
 //Provides: js_print_stderr (const)
 function js_print_stderr(s) {
-  var g = joo_global_object;
-  if (g.process && g.process.stdout && g.process.stdout.write) {
-    g.process.stderr.write(s);
-  } else {
-    if (!window.stderr_buffer) {
-      window.stderr_buffer = [];
-    }
-    window.stderr_buffer.push(s);
+  if (!window.stderr_buffer) {
+    window.stderr_buffer = [];
   }
+  window.stderr_buffer.push(s);
 }
