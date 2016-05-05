@@ -10,7 +10,7 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['alcotest-adapter', 'browserify'],
+    frameworks: ['browserify', 'alcotest-adapter'],
 
 
     // list of files / patterns to load in the browser
