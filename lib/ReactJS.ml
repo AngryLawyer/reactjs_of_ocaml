@@ -1,4 +1,4 @@
-let reactJs = (Js.Unsafe.variable "React")
+let reactJs = [%require_or_default "react" "window.React"]
 class type react_element = object end
 class type react_class = object end
 class type react_props = object end

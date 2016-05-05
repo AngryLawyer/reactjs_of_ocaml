@@ -13,6 +13,13 @@ export OPAMYES=1
 opam init
 opam install ${OPAM_DEPENDS}
 eval `opam config env`
+
+# commonjs_of_ocaml isn't on opam yet, so install it here
+git clone https://github.com/AngryLawyer/commonjs_of_ocaml.git
+cd commonjs_of_ocaml
+opam pin add commonjs_of_ocaml .
+cd -
+
 ocaml setup.ml -configure --enable-tests
 ocaml setup.ml -build
 ocaml setup.ml -test

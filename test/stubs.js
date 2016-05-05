@@ -21,28 +21,34 @@ function unix_open () {
 //Provides: unix_close
 function unix_close () {
 }
+//Provides: unix_execv
+function unix_execv () {
+}
+
+//Provides: unix_fork
+function unix_fork () {
+}
+
+//Provides: unix_pipe
+function unix_pipe () {
+}
+
+//Provides: unix_set_close_on_exec
+function unix_set_close_on_exec () {
+}
+
+//Provides: unix_waitpid
+function unix_waitpid () {
+}
+
+//Provides: unix_isatty
+function unix_isatty () {
+}
 
 //Provides: js_print_stdout (const)
 function js_print_stdout(s) {
-  var g = joo_global_object;
-  if (g.process && g.process.stdout && g.process.stdout.write) {
-    g.process.stdout.write(s);
-  } else {
-    if (!window.stdout_buffer) {
-      window.stdout_buffer = [];
-    }
-    window.stdout_buffer.push(s);
+  if (!window.stdout_buffer) {
+    window.stdout_buffer = [];
   }
-}
-//Provides: js_print_stderr (const)
-function js_print_stderr(s) {
-  var g = joo_global_object;
-  if (g.process && g.process.stdout && g.process.stdout.write) {
-    g.process.stderr.write(s);
-  } else {
-    if (!window.stderr_buffer) {
-      window.stderr_buffer = [];
-    }
-    window.stderr_buffer.push(s);
-  }
+  window.stdout_buffer.push(s);
 }

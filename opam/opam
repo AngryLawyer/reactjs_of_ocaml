@@ -23,6 +23,7 @@ build-test: [
 ]
 depends: [
   "alcotest" {build}
+  "commonjs_ppx"
   "js_of_ocaml" {>= "2.6"}
   "ocamlfind" {build}
 ]

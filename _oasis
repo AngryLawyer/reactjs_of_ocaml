@@ -14,11 +14,11 @@ Plugins:     META (0.4)
 FilesAB:      lib/ppx/META.ab
 PreInstallCommand:   $ocamlfind install reactjs_ppx lib/ppx/META
 PreUninstallCommand: $ocamlfind remove reactjs_ppx
-PostBuildCommand: js_of_ocaml "test/stubs.js" "_build/test/test.byte"
+PostBuildCommand: js_of_ocaml "test/stubs.js" "_build/test/test.byte" && mv "_build/test/test.js" test/
 
 Library reactjs
   Path:         lib
-  BuildDepends: js_of_ocaml (>= 2.6), js_of_ocaml.ppx (>= 2.6)
+  BuildDepends: js_of_ocaml (>= 2.6), js_of_ocaml.ppx (>= 2.6),commonjs_ppx
   Modules:      ReactJS, ReactDOM
 
 Executable reactjs_ppx
@@ -31,7 +31,7 @@ Executable test
     Install:        false
     Path:           test
     MainIs:         test.ml
-    BuildDepends:   alcotest,reactjs,js_of_ocaml
+    BuildDepends:   alcotest,reactjs,js_of_ocaml,commonjs_ppx
     ByteOpt:        -g
     CompiledObject: byte
 

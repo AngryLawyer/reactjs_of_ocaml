@@ -10,14 +10,12 @@ module.exports = function(config) {
 
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
-    frameworks: ['alcotest-adapter'],
+    frameworks: ['browserify', 'alcotest-adapter'],
 
 
     // list of files / patterns to load in the browser
     files: [
-      './react-15.0.1.js',
-      './react-dom-15.0.1.js',
-      '../_build/test/test.js'
+      './test.js'
     ],
 
 
@@ -29,6 +27,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
+      './test.js': ['browserify']
     },
 
 
@@ -68,8 +67,13 @@ module.exports = function(config) {
     // how many browser should be started simultaneous
     concurrency: Infinity,
     plugins: [
+      'karma-browserify',
       'karma-phantomjs-launcher',
       require('./alcotest-plugin')
-    ]
+    ],
+
+    webpackMiddleware: {
+      noInfo: true
+    }
   });
 };
