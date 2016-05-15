@@ -10,8 +10,10 @@ License:      MIT
 BuildTools:   ocamlbuild
 OCamlVersion: >= 4.02
 Plugins:     META (0.4)
-
+AlphaFeatures: ocamlbuild_more_args
+XOCamlbuildPluginTags: package(cppo_ocamlbuild)
 FilesAB:      lib/ppx/META.ab
+
 PreInstallCommand:   $ocamlfind install reactjs_ppx lib/ppx/META
 PreUninstallCommand: $ocamlfind remove reactjs_ppx
 PostBuildCommand: js_of_ocaml "test/stubs.js" "_build/test/test.byte" && mv "_build/test/test.js" test/

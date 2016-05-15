@@ -1,5 +1,5 @@
 # Edit this for your own project dependencies
-OPAM_DEPENDS="ocamlfind js_of_ocaml alcotest"
+OPAM_DEPENDS="ocamlfind js_of_ocaml alcotest commonjs_of_ocaml cppo"
 
 case "$OCAML_VERSION,$OPAM_VERSION" in
 4.02.3,1.2.2) ppa=avsm/ocaml42+opam12 ;;
@@ -20,12 +20,6 @@ fi
 
 opam install ${OPAM_DEPENDS}
 eval `opam config env`
-
-# commonjs_of_ocaml isn't on opam yet, so install it here
-git clone https://github.com/AngryLawyer/commonjs_of_ocaml.git
-cd commonjs_of_ocaml
-opam pin add commonjs_of_ocaml .
-cd -
 
 ocaml setup.ml -configure --enable-tests
 ocaml setup.ml -build
