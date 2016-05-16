@@ -4,6 +4,16 @@ open Asttypes
 open Parsetree
 open Longident
 
+#if OCAML_VERSION < (4, 03, 0)
+  let nolabel = ""
+  let const_string x y =
+    Const_string (x, y)
+#else
+  let nolabel = Nolabel
+  let const_string x y =
+    Pconst_string (x, y)
+#endif
+
 type tag_type =
     | Tag_name
     | React_class
@@ -41,12 +51,16 @@ let parse_attrs pexp_desc loc =
         None
     else
         let fields = List.map (fun (attr_name, argument) ->
-            let top_argument = Exp.apply ~loc (Exp.ident {txt = Longident.parse "Js.Unsafe.inject"; loc=loc}) [("", argument)] in
-            Exp.tuple [Exp.constant (Const_string (attr_name, None)); top_argument]
+            let top_argument = Exp.apply ~loc (Exp.ident {txt = Longident.parse "Js.Unsafe.inject"; loc=loc}) [(nolabel, argument)] in
+            Exp.tuple [Exp.constant (const_string attr_name None); top_argument]
         ) attr_list in
-        let args = [("", Exp.array fields)] in
+        let args = [(nolabel, Exp.array fields)] in
         let fragment = Exp.apply ~loc (Exp.ident {txt = Longident.parse "Js.Unsafe.obj"; loc=loc}) args in
+#if OCAML_VERSION < (4, 03, 0)
         Some ("props", fragment)
+#else
+        Some ((Optional "props"), fragment)
+#endif
 
 let rec find_children pexp loc =
     match pexp with
@@ -86,9 +100,13 @@ let rec parse_child pexp loc mappers =
         begin
             let constructed_child = match child with
             (* Strings become Dom_strings *)
+#if OCAML_VERSION < (4, 03, 0)
             | { pexp_desc = Pexp_constant (Const_string (str, None))} ->
+#else
+            | { pexp_desc = Pexp_constant (Pconst_string (str, None))} ->
+#endif
                 Exp.construct {txt = Longident.parse "ReactJS.Dom_string"; loc=loc} (Some (
-                    Exp.constant (Const_string (str, None))
+                    Exp.constant (const_string str None)
                 ))
             (* Sub-items are stuffed on the end *)
             | { pexp_desc = Pexp_construct ({txt = Lident "::"; loc = loc}, Some (
@@ -119,12 +137,12 @@ and parse_children pexp_desc loc mappers =
 
 and make_component kind ident props children loc =
     let class_constr = match kind with
-        | Tag_name -> ("", Exp.construct {txt = Longident.parse "ReactJS.Tag_name"; loc=loc} (Some (Exp.constant (Const_string (String.lowercase ident, None)))))
-        | React_class -> ("", Exp.construct {txt = Longident.parse "ReactJS.React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})))
+        | Tag_name -> (nolabel, Exp.construct {txt = Longident.parse "ReactJS.Tag_name"; loc=loc} (Some (Exp.constant (const_string (String.lowercase ident) None))))
+        | React_class -> (nolabel, Exp.construct {txt = Longident.parse "ReactJS.React_class"; loc=loc} (Some (Exp.ident {txt = Lident (String.lowercase ident); loc=loc})))
     in
     let args = match props with
-    | Some prop_object -> [class_constr; prop_object; ("", children)]
-    | None -> [class_constr; ("", children)] in
+    | Some prop_object -> [class_constr; prop_object; (nolabel, children)]
+    | None -> [class_constr; (nolabel, children)] in
     Exp.apply ~loc (Exp.ident {txt = Longident.parse "ReactJS.create_element"; loc=loc}) args
 
 and dom_parser_inner pexp_desc loc mappers =
