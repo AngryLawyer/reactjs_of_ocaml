@@ -56,7 +56,11 @@ let parse_attrs pexp_desc loc =
         ) attr_list in
         let args = [(nolabel, Exp.array fields)] in
         let fragment = Exp.apply ~loc (Exp.ident {txt = Longident.parse "Js.Unsafe.obj"; loc=loc}) args in
+#if OCAML_VERSION < (4, 03, 0)
         Some ("props", fragment)
+#else
+        Some ((Optional "props"), fragment)
+#endif
 
 let rec find_children pexp loc =
     match pexp with
