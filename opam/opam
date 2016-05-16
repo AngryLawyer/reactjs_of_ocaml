@@ -22,9 +22,9 @@ build-test: [
   ["ocaml" "setup.ml" "-test"]
 ]
 depends: [
-  "alcotest" {build}
-  "commonjs_ppx"
+  "commonjs_of_ocaml"
   "js_of_ocaml" {>= "2.6"}
+  "ocamlbuild" {build}
   "ocamlfind" {build}
 ]
-available: [ ocaml-version >= "4.02" ]
+available: [ ocaml-version >= "4.02.0" ]
