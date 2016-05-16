@@ -1,22 +1,21 @@
-OASISFormat:  0.4
-Name:         reactjs_of_ocaml
-Version:      0.1
-Synopsis:     js_of_ocaml bindings for React.JS
-Description:  js_of_ocaml bindings for React.JS, including a syntax extension for easy creation of React elements.
-Authors:      Tony Aldridge <tony@angry-lawyer.com>
-Maintainers:  Tony Aldridge <tony@angry-lawyer.com>
-Homepage:     https://github.com/angrylawyer/reactjs_of_ocaml
-License:      MIT
-BuildTools:   ocamlbuild
-OCamlVersion: >= 4.02
-Plugins:     META (0.4)
-AlphaFeatures: ocamlbuild_more_args
+OASISFormat:    0.4
+Name:           reactjs_of_ocaml
+Version:        0.1
+Synopsis:       js_of_ocaml bindings for React.JS
+Description:    js_of_ocaml bindings for React.JS, including a syntax extension for easy creation of React elements.
+Authors:        Tony Aldridge <tony@angry-lawyer.com>
+Maintainers:    Tony Aldridge <tony@angry-lawyer.com>
+Homepage:       https://github.com/angrylawyer/reactjs_of_ocaml
+BuildTools:     ocamlbuild
+License:        MIT
+Plugins:        META (0.4)
+OCamlVersion:   >= 4.02.0
+AlphaFeatures:  ocamlbuild_more_args
 XOCamlbuildPluginTags: package(cppo_ocamlbuild)
-FilesAB:      lib/ppx/META.ab
+FilesAB:        lib/ppx/META.ab
 
 PreInstallCommand:   $ocamlfind install reactjs_ppx lib/ppx/META
 PreUninstallCommand: $ocamlfind remove reactjs_ppx
-PostBuildCommand: js_of_ocaml "test/stubs.js" "_build/test/test.byte" && mv "_build/test/test.js" test/
 
 Library reactjs
   Path:         lib
@@ -29,17 +28,19 @@ Executable reactjs_ppx
     BuildDepends:   compiler-libs.common
     CompiledObject: byte
 
-Executable test
-    Install:        false
-    Path:           test
-    MainIs:         test.ml
-    BuildDepends:   alcotest,reactjs,js_of_ocaml,commonjs_ppx
-    ByteOpt:        -g
-    CompiledObject: byte
-
 Test test
-    Type: Custom (0.0.1)
-    Command: cd test && npm install && npm test
+    Command: ocamlbuild \
+        -plugin-tag 'package(cppo_ocamlbuild)' \
+        -use-ocamlfind \
+        -I lib \
+        -package alcotest,js_of_ocaml,js_of_ocaml.ppx,commonjs_ppx \
+        test/test.byte && \
+        js_of_ocaml "test/stubs.js" "_build/test/test.byte" && mv "_build/test/test.js" test/ && \
+        cd test && \
+        npm install && \
+        npm test
+    PostCommand: rm test/test.js
+    TestTools: npm
 
 SourceRepository master
   Type:     git

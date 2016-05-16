@@ -1,5 +1,5 @@
 # OASIS_START
-# DO NOT EDIT (digest: 6cc25ae37466d15f6876169d120ead9e)
+# DO NOT EDIT (digest: ace905d7eb5a4e77123fc740c377a3ef)
 # Ignore VCS directories, you can use the same kind of rule outside
 # OASIS_START/STOP if you want to exclude directories that contains
 # useless stuff for the build process
@@ -22,17 +22,4 @@ true: annot, bin_annot
 # Executable reactjs_ppx
 "lib/ppx/ppx.byte": package(compiler-libs.common)
 <lib/ppx/*.ml{,i,y}>: package(compiler-libs.common)
-# Executable test
-"test/test.byte": oasis_executable_test_byte
-<test/*.ml{,i,y}>: oasis_executable_test_byte
-"test/test.byte": package(alcotest)
-"test/test.byte": package(commonjs_ppx)
-"test/test.byte": package(js_of_ocaml)
-"test/test.byte": package(js_of_ocaml.ppx)
-"test/test.byte": use_reactjs
-<test/*.ml{,i,y}>: package(alcotest)
-<test/*.ml{,i,y}>: package(commonjs_ppx)
-<test/*.ml{,i,y}>: package(js_of_ocaml)
-<test/*.ml{,i,y}>: package(js_of_ocaml.ppx)
-<test/*.ml{,i,y}>: use_reactjs
 # OASIS_STOP
