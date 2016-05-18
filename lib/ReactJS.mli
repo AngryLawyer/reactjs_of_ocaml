@@ -34,7 +34,8 @@ module Make_ReactClass(ClassSpec: ReactClassSpec): RC with type props_spec = Cla
 
 module Children : sig
     type children
-    val get_children : < render : react_element Js.t Js.meth; .. > Js.t -> children Js.t
+    val get : < render : react_element Js.t Js.meth; .. > Js.t -> children Js.t option 
+    val map : (react_element Js.t -> 'a) -> children Js.t -> 'a Js.js_array Js.t
     val as_react_element : children Js.t -> react_element Js.t
 end
 

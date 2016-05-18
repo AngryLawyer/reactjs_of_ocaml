@@ -84,8 +84,14 @@ end
 module Children = struct
     type children = react_element
 
-    let get_children self =
-        (Js.Unsafe.coerce (Js.Unsafe.get self "props"))##.children
+    let children_module = Js.Unsafe.get reactJs "Children"
+
+    let get self =
+        Js.Opt.to_option (Js.Unsafe.coerce (Js.Unsafe.get self "props"))##.children
+    
+    let map f children =
+        let wrapped = Js.wrap_callback f in
+        Js.Unsafe.meth_call children_module "map" [| Js.Unsafe.inject children; Js.Unsafe.inject wrapped |]
 
     let as_react_element children =
         (Js.Unsafe.coerce children)
