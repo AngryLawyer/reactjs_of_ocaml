@@ -1,7 +1,7 @@
 (* Test creating a new react element *)
 let create_element () =
     let element = (ReactJS.create_element (ReactJS.Tag_name "div") []) in
-    Alcotest.(check bool) "is a valid element" (ReactJS.is_valid_element element) true
+    Alcotest.(check bool) "is a valid element" true (ReactJS.is_valid_element element)
 
 
 module My_class = ReactJS.Make_ReactClass(struct
@@ -22,13 +22,12 @@ let create_class () =
     (* Check we get the doodad out the other end *)
     let rendered = (ReactAddonsTestUtils.render_into_document element) in
     let element = ReactDOM.find_dom_node rendered in
-    Alcotest.(check bool) "contains our Hello message" begin
+    Alcotest.(check string) "contains our Hello message" "Hello" begin
         match Js.Opt.to_option element with
         | Some x ->
-            let content = Js.to_string x##.innerHTML in
-            content = "Hello"
-        | None -> false
-    end true
+            Js.to_string x##.innerHTML
+        | None -> Alcotest.fail "No element found"
+    end
 
 
 (* Test accessing the opaque Children type *)
@@ -43,19 +42,37 @@ let test_get_children () =
     let element = ReactJS.create_element (ReactJS.React_class react_class) ~props:(object%js val name = "Hello" end) [ReactJS.Dom_string "Hello again"] in
     let rendered = (ReactAddonsTestUtils.render_into_document element) in
     let element = ReactDOM.find_dom_node rendered in
-    Alcotest.(check bool) "contains our Hello again message" begin
+    Alcotest.(check string) "contains our Hello again message" "Hello again" begin
         match Js.Opt.to_option element with
         | Some x ->
-            let content = Js.to_string x##.innerHTML in
-            content = "Hello again"
-        | None -> false
-    end true
+            Js.to_string x##.innerHTML
+        | None -> Alcotest.fail "No element found"
+    end
+
+let test_map_children () =
+    let react_class = My_class.create_class(object%js (self)
+        method render =
+            let children = ReactJS.Children.get_children self in
+            (ReactJS.create_element (ReactJS.Tag_name "span") [
+                ReactJS.React_element (ReactJS.Children.as_react_element children)
+            ])
+    end) in
+    let element = ReactJS.create_element (ReactJS.React_class react_class) ~props:(object%js val name = "Hello" end) [ReactJS.Dom_string "Hello again"] in
+    let rendered = (ReactAddonsTestUtils.render_into_document element) in
+    let element = ReactDOM.find_dom_node rendered in
+    Alcotest.(check string) "contains our HelloGoodbye message" "HelloGoodbye" begin
+        match Js.Opt.to_option element with
+        | Some x ->
+            Js.to_string x##.innerHTML
+        | None -> Alcotest.fail "No element found"
+    end
 
 
 let reactjs_test_set = [
     "create_element", `Quick, create_element;
     "create_class", `Quick, create_class;
     "test_get_children", `Quick, test_get_children;
+    "test_map_children", `Quick, test_map_children;
 ]
 
 let () =
