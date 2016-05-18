@@ -47,12 +47,9 @@ let create_element dom_class ?props content_list =
     ] @ content)) in
     Js.Unsafe.meth_call create_element "apply" [| Js.Unsafe.inject Js.null; Js.Unsafe.inject args |]
 
-let create_class spec =
-    Js.Unsafe.meth_call reactJs "createClass" [| Js.Unsafe.inject spec |]
-
 let set_state self values =
     Js.Unsafe.meth_call self "setState" [| Js.Unsafe.inject values |]
-    
+
 let is_valid_element element =
     Js.Unsafe.meth_call reactJs "isValidElement" [| Js.Unsafe.inject element |]
 
@@ -82,4 +79,14 @@ module Make_ReactClass(ClassSpec: ReactClassSpec) = struct
 
     let get_state self =
         Js.Unsafe.get self "state"
+end
+
+module Children = struct
+    type children = react_element
+
+    let get_children self =
+        (Js.Unsafe.coerce (Js.Unsafe.get self "props"))##.children
+
+    let as_react_element children =
+        (Js.Unsafe.coerce children)
 end

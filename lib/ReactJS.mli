@@ -12,7 +12,6 @@ type content_type =
     | Element_list of content_type list
     | No_content
 
-val create_class : < render : react_element Js.t Js.meth; .. > Js.t -> react_class
 val create_element : tag_type -> ?props : < .. > Js.t -> content_type list -> react_element Js.t
 val set_state : < render : react_element Js.t Js.meth; .. > Js.t -> < .. > Js.t -> unit
 
@@ -32,3 +31,10 @@ module type RC = sig
 end
 
 module Make_ReactClass(ClassSpec: ReactClassSpec): RC with type props_spec = ClassSpec.props_spec and type state_spec = ClassSpec.state_spec
+
+module Children : sig
+    type children
+    val get_children : < render : react_element Js.t Js.meth; .. > Js.t -> children Js.t
+    val as_react_element : children Js.t -> react_element Js.t
+end
+
