@@ -37,16 +37,24 @@
     var id = items[1];
     var name = items[2];
 
-    // Next line is either empty, or an error code
-    var errorLine = resultBuffer[1];
-    var success = true;
-    var errorText = [];
-    if (errorLine.indexOf('[failure]') === 0) {
-      success = false;
-      var errorsEnd = findNextIndex(resultBuffer, function (line) {
-        return (/^\[ERROR\]/.test(line));
-      });
-      errorText = resultBuffer.slice(1, errorsEnd).filter(function (item) { return item.trim(); });
+    // Find an error line
+    var lineIdx = 1;
+    while (lineIdx < resultBuffer.length) {
+      var errorLine = resultBuffer[lineIdx];
+      var success = true;
+      var errorText = [];
+      if (errorLine.indexOf('[failure]') === 0) {
+        success = false;
+        var errorsEnd = findNextIndex(resultBuffer, function (line) {
+          return (/^\[ERROR\]/.test(line));
+        });
+        errorText = resultBuffer.slice(1, errorsEnd).filter(function (item) { return item.trim(); });
+        break;
+      }
+      if (/\.\.\./.test(errorLine)) {
+        break;
+      }
+      lineIdx += 1;
     }
 
     var result = {
@@ -80,7 +88,7 @@
   function createStartFn(karma) {
     return function () {
       win.startTests();
-      parseResults(karma, win.stdout_buffer.map(stripControlSequences));
+      parseResults(karma, win.stdout_buffer.map(stripControlSequences).join("\n").split("\n"));
 
       karma.complete({});
     };
