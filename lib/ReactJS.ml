@@ -82,16 +82,20 @@ module Make_ReactClass(ClassSpec: ReactClassSpec) = struct
 end
 
 module Children = struct
-    type children = react_element
+    type t = react_element
 
     let children_module = Js.Unsafe.get reactJs "Children"
 
     let get self =
         Js.Opt.to_option (Js.Unsafe.coerce (Js.Unsafe.get self "props"))##.children
-    
+
     let map f children =
+        Firebug.console##warn children;
         let wrapped = Js.wrap_callback f in
-        Js.Unsafe.meth_call children_module "map" [| Js.Unsafe.inject children; Js.Unsafe.inject wrapped |]
+        Firebug.console##warn f;
+        let js_array = Js.Unsafe.meth_call children_module "map" [| Js.Unsafe.inject children; Js.Unsafe.inject wrapped |] in
+        Firebug.console##warn js_array;
+        Js.to_array js_array
 
     let as_react_element children =
         (Js.Unsafe.coerce children)

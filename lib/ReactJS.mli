@@ -15,7 +15,7 @@ type content_type =
 val create_element : tag_type -> ?props : < .. > Js.t -> content_type list -> react_element Js.t
 val set_state : < render : react_element Js.t Js.meth; .. > Js.t -> < .. > Js.t -> unit
 
-val is_valid_element: react_element Js.t -> bool
+val is_valid_element : react_element Js.t -> bool
 
 module type ReactClassSpec = sig
     type props_spec
@@ -33,9 +33,8 @@ end
 module Make_ReactClass(ClassSpec: ReactClassSpec): RC with type props_spec = ClassSpec.props_spec and type state_spec = ClassSpec.state_spec
 
 module Children : sig
-    type children
-    val get : < render : react_element Js.t Js.meth; .. > Js.t -> children Js.t option 
-    val map : (react_element Js.t -> 'a) -> children Js.t -> 'a Js.js_array Js.t
-    val as_react_element : children Js.t -> react_element Js.t
+    type t
+    val get : < render : react_element Js.t Js.meth; .. > Js.t -> t Js.t option
+    val map : (react_element Js.t -> 'a) -> t Js.t -> 'a array
+    val as_react_element : t Js.t -> react_element Js.t
 end
-
