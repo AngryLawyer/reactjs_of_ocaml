@@ -90,11 +90,7 @@ module Children = struct
         Js.Opt.to_option (Js.Unsafe.coerce (Js.Unsafe.get self "props"))##.children
 
     let map f children =
-        Firebug.console##warn children;
-        let wrapped = Js.wrap_callback f in
-        Firebug.console##warn f;
-        let js_array = Js.Unsafe.meth_call children_module "map" [| Js.Unsafe.inject children; Js.Unsafe.inject wrapped |] in
-        Firebug.console##warn js_array;
+        let js_array = Js.Unsafe.meth_call children_module "map" [| Js.Unsafe.inject children; Js.Unsafe.inject f |] in
         Js.to_array js_array
 
     let as_react_element children =

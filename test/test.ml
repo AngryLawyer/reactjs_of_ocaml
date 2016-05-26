@@ -57,7 +57,6 @@ let test_map_children () =
             let children = match ReactJS.Children.get self with
             | Some children ->
                 let mapped = ReactJS.Children.map (fun element -> element) children in
-                Firebug.console##warn mapped;
                 ReactJS.Element_list (List.map (fun x -> ReactJS.React_element x) (Array.to_list mapped))
             | None -> ReactJS.No_content in
             (ReactJS.create_element (ReactJS.Tag_name "div") [
@@ -67,10 +66,15 @@ let test_map_children () =
     let element = ReactJS.create_element (ReactJS.React_class react_class) ~props:(object%js val name = "Hello" end) [ReactJS.Dom_string "Hello"; ReactJS.Dom_string "Goodbye"] in
     let rendered = (ReactAddonsTestUtils.render_into_document element) in
     let element = ReactDOM.find_dom_node rendered in
-    Alcotest.(check string) "contains our HelloGoodbye message" "HelloGoodbye" begin
+    Alcotest.(check bool) "contains our HelloGoodbye message" true begin
         match Js.Opt.to_option element with
         | Some x ->
-            Js.to_string x##.outerHTML
+            let stringified = x##.outerHTML in
+            begin
+                match (stringified##indexOf (Js.string "Hello") > -1,  stringified##indexOf (Js.string "Goodbye") > -1) with
+                | true, true -> true
+                | _, _ -> false
+            end
         | None -> Alcotest.fail "No element found"
     end
 
